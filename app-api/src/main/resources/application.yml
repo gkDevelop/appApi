@@ -1,0 +1,47 @@
+# 项目启动端口
+server:
+  port: 8080
+spring:
+  datasource:
+    dynamic:
+      druid:
+        initial-size: 5 # 初始化大小，最小，最大线程数
+        min-idle: 5
+        max-active: 20 # CPU核数+1，也可以大些但不要超过20，数据库加锁时连接过多性能下降
+        max-wait: 60000 # 最大等待时间，内网：800，外网：1200（三次握手1s）
+        time-between-eviction-runs-millis: 60000
+        min-evictable-idle-time-millis: 300000 # 配置一个连接在池中最大空间时间，单位是毫秒
+        validation-query: SELECT 1
+        validation-query-timeout: 1
+        test-while-idle: true
+        test-on-borrow: true # 设置从连接池获取连接时是否检查连接有效性，true检查，false不检查
+        test-on-return: true #设置从连接池归还连接时是否检查连接有效性，true检查，false不检查
+        filters: stat,wall,slf4j #配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+        keep-alive: true #  保持长连接
+        # 如果大于0，pool-prepared-statements自动开启
+        max-pool-prepared-statement-per-connection-size: 20
+        pool-prepared-statements: true # 可以支持PSCache（提升写入、查询效率）
+        use-global-data-source-stat: true
+      #  dynamic主从设置
+      primary: first  #设置默认的数据源或者数据源组,默认值即为master
+      strict: false  #设置严格模式,默认false不启动. 启动后在未匹配到指定数据源时候回抛出异常,不启动会使用默认数据源.
+      datasource:
+        first:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://192.168.140.102:3306/app_database?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
+          username: root
+          password: P@ssw0rd
+          type: com.alibaba.druid.pool.DruidDataSource
+        second:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://192.168.140.102:3306/app_database2?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true
+          username: root
+          password: P@ssw0rd
+          type: com.alibaba.druid.pool.DruidDataSource
+mybatis-plus:
+  # 所有实体类所在包路径
+  type-aliases-package: com.chinact.**.bean
+  # mapper.xml文件路径，多个使用逗号分隔
+  # mapper-locations: classpath*:resources/mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
